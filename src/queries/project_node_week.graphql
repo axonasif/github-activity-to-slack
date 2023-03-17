@@ -1,0 +1,16 @@
+query ProjectNodeWeek($input_project_node_id: ID!) {
+  node(id: $input_project_node_id) {
+    ... on ProjectV2 {
+      field(name: "Week") {
+        ... on ProjectV2IterationField {
+          id
+          configuration {
+            iterations {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}

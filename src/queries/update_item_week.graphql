@@ -1,0 +1,14 @@
+mutation UpdateItemWeek($input_project_node_id: ID!, $input_node_id: ID!, $input_field_id: ID!, $input_iterations_id: ID!) {
+  updateProjectV2ItemFieldValue(
+    input: {
+      projectId: "${project_node_id}"
+      itemId: "${node_id}"
+      fieldId: "${project.data.node.field.id}"
+      value: { iterationId: "${iterations.id}" }
+    }
+  ) {
+    projectV2Item {
+      id
+    }
+  }
+}

@@ -1,1 +1,1 @@
-# glucord
+# GitHub activity to Slack

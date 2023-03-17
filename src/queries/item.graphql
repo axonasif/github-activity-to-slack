@@ -1,0 +1,69 @@
+query Item($input_node_id: ID!) {
+  node(id: $input_node_id) {
+    __typename
+
+    ... on ProjectV2Item {
+
+      fieldValues(first: 50) {
+        nodes {
+          __typename
+
+          ... on ProjectV2ItemFieldSingleSelectValue {
+              name
+
+            field {
+              __typename
+
+                ... on ProjectV2SingleSelectField {
+                    id
+                }
+            }
+          }
+        }
+      }
+
+      fieldValueByName(name: "Week") {
+        __typename
+
+        ... on ProjectV2ItemFieldIterationValue {
+          id
+        }
+      }
+
+      project {
+          title
+      }
+
+      content {
+        __typename
+
+        ... on Issue {
+          __typename
+
+          url
+          title
+
+          labels(first: 50) {
+            nodes {
+              name
+            }
+          }
+        }
+
+        ... on PullRequest {
+          __typename
+
+          url
+          title
+
+          labels(first: 50) {
+            nodes {
+              name
+            }
+          }
+        }
+
+      }
+    }
+  }
+}

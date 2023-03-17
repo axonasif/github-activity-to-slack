@@ -1,0 +1,9 @@
+query ProjectFieldStatus ($input_field_node_id: ID!) {
+  node(id: $input_field_node_id) {
+    __typename
+
+     ... on ProjectV2SingleSelectField {
+         name
+     }
+  }
+}
