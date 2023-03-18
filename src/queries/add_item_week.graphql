@@ -1,4 +1,4 @@
-mutation UpdateItemWeek($input_project_node_id: ID!, $input_node_id: ID!, $input_field_id: ID!, $input_iterations_id: ID!) {
+mutation AddItemWeek($input_project_node_id: ID!, $input_node_id: ID!, $input_field_id: ID!, $input_iterations_id: ID!) {
   updateProjectV2ItemFieldValue(
     input: {
       projectId: "${project_node_id}"

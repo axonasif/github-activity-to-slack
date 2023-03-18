@@ -1,7 +1,11 @@
-query ProjectNodeWeek($input_project_node_id: ID!) {
+query Project($input_project_node_id: ID!) {
   node(id: $input_project_node_id) {
+    __typename
+
     ... on ProjectV2 {
       field(name: "Week") {
+        __typename
+
         ... on ProjectV2IterationField {
           id
           configuration {
