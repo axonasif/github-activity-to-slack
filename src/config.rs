@@ -1,10 +1,12 @@
 use serde::Deserialize;
 use std::path::Path;
 
+// Top level
 #[derive(Debug, Deserialize)]
 pub struct BotConfig {
     pub github: GithubConfig,
     pub slack: SlackConfig,
+    pub automations: AutomationsConfig,
 }
 
 #[derive(Debug, Deserialize)]
@@ -20,16 +22,25 @@ pub struct SlackConfig {
     pub api_endpoint: String,
     pub bot_name: String,
     pub bot_avatar: String,
-    pub teams: Vec<Team>,
     pub user_agent: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Team {
-    pub name: String,
-    pub created_channel_id: Option<String>,
-    pub edited_channel_id: Option<String>,
-    // pub github_project_id: u64,
+pub struct AutomationsConfig {
+    pub github_projects: GitHubProjects,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GitHubProjects {
+    pub iteration_increment_project_name_or_id: Option<String>,
+    pub to_slack_teams: Vec<GitHubSlackTeams>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GitHubSlackTeams {
+    pub github_project_name_or_id: String,
+    pub slack_created_channel_id: Option<String>,
+    pub slack_edited_channel_id: Option<String>,
 }
 
 pub fn read(toml_path: &str) -> BotConfig {

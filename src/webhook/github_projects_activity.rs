@@ -86,6 +86,7 @@ async fn github_projects_activity(message: Json<GitHubProjectsPayload<'_>>) -> O
     // struct level.
     let action = message.action.to_string();
     let node_id = message.projects_v2_item.node_id.to_string();
+    let project_node_id = message.projects_v2_item.project_node_id.to_string();
     let sender_login = message.sender.login.to_string();
 
     // Get GitHub http client
@@ -136,7 +137,6 @@ async fn github_projects_activity(message: Json<GitHubProjectsPayload<'_>>) -> O
     .node?;
 
     if let ProjectV2Item(item) = item_response {
-        // TODO: We could explicitly use ID instead of the "title" (i.e. "name")
         let project_name = Cow::from(item.project.title.to_lowercase());
         let project_name = html_escape::decode_html_entities(&project_name);
         let item_contents = item.content?;
@@ -171,13 +171,16 @@ async fn github_projects_activity(message: Json<GitHubProjectsPayload<'_>>) -> O
         } + &format!(" by <https://githbub.com/{sender_login}|{sender_login}>");
 
         // Post to slack based on team name
-        for team in &bot_config.slack.teams {
-            if project_name.contains(&team.name) {
+        for team in &bot_config.automations.github_projects.to_slack_teams {
+            // Check if the Config.toml value matches with an explicit project_node_id
+            // or contains the provided name.
+            if project_node_id == team.github_project_name_or_id
+            || project_name.contains(&team.github_project_name_or_id) {
                 // Determine which channel to post
                 let channel_id = if action == "edited" {
-                    &team.edited_channel_id
+                    &team.slack_edited_channel_id
                 } else {
-                    &team.created_channel_id
+                    &team.slack_created_channel_id
                 };
 
                 let payload = json!({
@@ -206,8 +209,11 @@ async fn github_projects_activity(message: Json<GitHubProjectsPayload<'_>>) -> O
             }
         }
 
-        // IDE team specific tasks
-        if project_name.contains("ide") && let Issue(content) = &item_contents && let Some(labels) = &content.labels {
+        // A team specific task
+        let project_name_or_id = &bot_config.automations.github_projects.iteration_increment_project_name_or_id;
+
+        if let Some(project) = project_name_or_id && (project_node_id == *project || project_name.contains(project))
+        && let Issue(content) = &item_contents && let Some(labels) = &content.labels {
             let is_epic = labels
                 .nodes
                 .as_ref()
@@ -216,7 +222,6 @@ async fn github_projects_activity(message: Json<GitHubProjectsPayload<'_>>) -> O
                 .filter_map(|node| node.as_ref())
                 .any(|label| label.name == "type: epic");
 
-            let project_node_id = message.projects_v2_item.project_node_id.to_string();
 
             // If "Week" field is not set and the item is not labled with "type: epic"
             if item.field_value_by_name.is_none() && !is_epic {
